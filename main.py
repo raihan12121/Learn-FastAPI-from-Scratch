@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, HttpUrl
-
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import time
 
 
 
@@ -13,6 +15,19 @@ class  Course(BaseModel):
     instructor: str
     duration: float
     website: HttpUrl
+
+
+while True:
+    try:
+        conn = psycopg2.connect(host = 'localhost', database='Raihan', user = 'postgres',
+        password ='12345', cursor_factory=RealDictCursor)
+        cursor = conn.cursor()
+        print('Successfully connected Database')
+        break 
+    except Exception as error:
+        print('Database connection Failed')
+        print("error:", error)
+        time.sleep(2)
 
 
 @app.post("/post")
