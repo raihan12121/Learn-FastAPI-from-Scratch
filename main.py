@@ -15,6 +15,7 @@ class  Course(BaseModel):
     instructor: str
     duration: float
     website: HttpUrl
+    id: int
 
 
 while True:
@@ -32,12 +33,17 @@ while True:
 
 @app.post("/post")
 def create_post(post: Course):
-    return{"data": post}
+    cursor.execute("""INSERT INTO course(name,instructor, duration, website, id) VALUES(%s, %s, %s, %s, %s)RETURNING *""", (post.name, post.instructor, post.duration, str(post.website), post.id))
+    new_post = cursor.fetchone()
+    conn.commit()
+    return{"data": new_post}
 
 
 @app.get("/")
 def RaihanApi():
-    return {"Raihan" : "FastAPi"}
+    cursor.execute("""SELECT * FROM course""")
+    data = cursor.fetchall()
+    return {"Data" : data}
 
 @app.get("/course")
 def FastapiCourse():
