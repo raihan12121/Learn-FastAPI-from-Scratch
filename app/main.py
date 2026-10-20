@@ -44,6 +44,21 @@ def create_post(post: Course):
     conn.commit()
     return{"data": new_post}
 
+@app.post("/courses")
+def create_courses(course: Course, db: Session = Depends(get_db)):
+    new_course = models.Course(
+        name=course.name,
+        instructor=course.instructor,
+        duration=course.duration,
+        website=str(course.website)
+    )
+    db.add(new_course)
+    db.commit()
+    db.refresh(new_course)
+    return {"course": new_course}
+
+
+
 
 @app.get("/")
 def RaihanApi():
