@@ -87,6 +87,17 @@ def get_course(id:int):
     return{"Course_detail" : course}
 
 
+@app.get("/coursealchemy/{id}")
+def Raihan_course(id:int, db: Session = Depends(get_db)):
+    course = db.query(models.Course).filter(models.Course.id == id).first()
+    if not course:
+        raise HTTPException(
+            status_code = status.HTTP_404_NOT_FOUND,
+            detail= f"Course with id:{id} was not found"
+        )
+    return{"Course_detail" : course}
+
+
 @app.delete("/course/{id}", status_code = status.HTTP_204_NO_CONTENT)
 def delete_course(id: int):
     cursor.execute("""DELETE FROM courses WHERE id = %s returning * """, (str(id),))
@@ -115,4 +126,5 @@ def update_course(id: int, course:Course):
 
 @app.get("/coursealchemy")
 def course(db:Session =  Depends(get_db)):
-    return{"status": "sqlalchemy ORM working"}
+    course = db.query(models.Course).all()
+    return{"Course": course}
