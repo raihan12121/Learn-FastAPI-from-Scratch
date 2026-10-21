@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException, status, Response, Depends
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
-from . import models, schemas
+from . import models, schemas, utils
 from sqlalchemy.orm import Session
 from . database import engine, get_db
 from typing import List
@@ -152,6 +152,10 @@ def update_Raihan_course(id:int, updated_course: schemas.CourseCreate, db:Sessio
 
 @app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserRes)
 def Raihan_user(user: schemas.UserCreate, db:Session= Depends(get_db)):
+    if db.query(models.User).filter(models.User.email == user.email).first():
+        raise HTTPException(400, "Email Already Exist")
+    hashed_password = utils.hash_password(user.password)
+    user.password = hashed_password
     new_user = models.User(**user.model_dump())
     db.add(new_user)
     db.commit()
