@@ -28,5 +28,4 @@ class UserRes(BaseModel):
     id: int
     email: EmailStr
     created_at : datetime
-    class config:
-        orm_model = True
+    model_config = ConfigDict(from_attributes=True)
