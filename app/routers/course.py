@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from .. import models, schemas
 from ..database import get_db
 from typing import List
+from .. import oauth2
 
 router = APIRouter(
     prefix="/course",
@@ -14,6 +15,14 @@ router = APIRouter(
 
 
 
+@router.post("/", response_model=schemas.CourseResponse)
+def create_courses(course: schemas.CourseCreate, db: Session = Depends(get_db), get_current_user: int=Depends(oauth2.get_current_user)):
+    new_course = models.Course(**course.model_dump(mode='json'))
+
+    db.add(new_course)
+    db.commit()
+    db.refresh(new_course)
+    return new_course
 
 
 
@@ -28,10 +37,6 @@ def Raihan_course(id:int, db: Session = Depends(get_db)):
             detail= f"Course with id:{id} was not found"
         )
     return course
-
-
-
-
 
 
 
@@ -66,11 +71,3 @@ def update_Raihan_course(id:int, updated_course: schemas.CourseCreate, db:Sessio
     db.refresh(course)
     return course
 
-@router.post("/", response_model=schemas.CourseResponse)
-def create_courses(course: schemas.CourseCreate, db: Session = Depends(get_db)):
-    new_course = models.Course(**course.model_dump(mode='json'))
-
-    db.add(new_course)
-    db.commit()
-    db.refresh(new_course)
-    return new_course

@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, HttpUrl, ConfigDict, EmailStr
-
+from typing import Optional
 
 
 class CourseCreate(BaseModel):
@@ -35,3 +35,13 @@ class UserRes(BaseModel):
 class UserLogin(BaseModel):
     email : EmailStr
     password : str
+
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    id: Optional[int] = None
