@@ -1,5 +1,5 @@
 from sqlalchemy import TIMESTAMP
-from sqlalchemy import Column, Integer, String, Float, TIMESTAMP, text
+from sqlalchemy import Column, Integer, String, Float, TIMESTAMP, text, ForeignKey
 from .database import Base
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -14,6 +14,8 @@ class Course(Base):
     instructor = Column(String, nullable= False)
     duration = Column(Float, nullable=False)
     website = Column(String, nullable= False)
+    creator_id = Column(Integer, ForeignKey("user.id", ondelete= "CASCADE"), nullable= False)
+
 
 
 

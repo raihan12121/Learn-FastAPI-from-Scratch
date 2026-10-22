@@ -15,6 +15,7 @@ class CourseCreate(BaseModel):
 class CourseResponse(CourseCreate):
     id : int
     model_config = ConfigDict(from_attributes=True)
+    creator_id : int
 
 
 

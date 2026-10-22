@@ -19,7 +19,7 @@ router = APIRouter(
 def create_course(course: schemas.CourseCreate, db: Session = Depends(get_db), current_user: models.User = Depends(oauth2.get_current_user)):
     print(current_user.id)
     print(current_user.email)
-    new_course = models.Course(**course.model_dump(mode='json'))
+    new_course = models.Course(**course.model_dump(mode='json'), creator_id = current_user.id)
 
     db.add(new_course)
     db.commit()
@@ -38,6 +38,10 @@ def Raihan_course(id:int, db: Session = Depends(get_db), current_user: models.Us
             status_code = status.HTTP_404_NOT_FOUND,
             detail= f"Course with id:{id} was not found"
         )
+    if course.creator_id != current_user.id:
+        raise HTTPException(
+            status_code =status.HTTP_403_FORBIDDEN, detail = "Not authorized action"
+        )
     return course
 
 
@@ -48,6 +52,9 @@ def delete_Raihan_course(id:int, db:Session=Depends(get_db),current_user: models
     course=course_query.first()
     if not course:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= f"course with id:{id} does not exist")
+    if course.creator_id != current_user.id:
+        raise HTTPException(
+            status_code =status.HTTP_403_FORBIDDEN, detail = "Not authorized action")
     course_query.delete(synchronize_session=False)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -56,7 +63,9 @@ def delete_Raihan_course(id:int, db:Session=Depends(get_db),current_user: models
 
 @router.get("/", response_model= List[schemas.CourseResponse])
 def course(db:Session =  Depends(get_db),current_user: models.User = Depends(oauth2.get_current_user)):
-    course = db.query(models.Course).all()
+    # course = db.query(models.Course).all()
+    course = db.query(models.Course).filter(models.Course.creator_id == current_user.id).all()
+
     return course
 
 
@@ -66,6 +75,9 @@ def update_Raihan_course(id:int, updated_course: schemas.CourseCreate, db:Sessio
     course = course_query.first()
     if not course:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"course with id: {id} does not exist")
+    if course.creator_id != current_user.id:
+        raise HTTPException(
+            status_code =status.HTTP_403_FORBIDDEN, detail = "Not authorized action")
     update_data = updated_course.model_dump()
     update_data["website"] = str(update_data["website"])
     course_query.update(update_data, synchronize_session=False)
